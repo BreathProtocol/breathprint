@@ -6,7 +6,7 @@ const DEMO_HEADERS: Record<string, string> = {
  * Production: points to Render API.
  * Dev: uses same hostname + port 3001 so LAN testing works.
  */
-const PRODUCTION_API = "https://breathkyc.onrender.com";
+const PRODUCTION_API = "https://breathprint.onrender.com";
 
 export function getApiBase(): string {
   // Check env var first (works in dev with .env.local)

@@ -46,7 +46,7 @@ function buildBiometricHash(faceTemplateHash: string, breathData: object, sessio
     face: faceTemplateHash,
     breath: breathData,
     session: sessionId,
-    version: 'breathkyc-v1',
+    version: 'breathprint-v1',
   });
   return crypto.createHash('sha256').update(payload).digest('hex');
 }

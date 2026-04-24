@@ -18,7 +18,7 @@ function resolveEncryptionKey(): Buffer {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('ENCRYPTION_KEY is required in production');
     }
-    return crypto.createHash('sha256').update('breath-kyc-dev-default-key').digest();
+    return crypto.createHash('sha256').update('breathprint-dev-default-key').digest();
   }
   if (/^[0-9a-fA-F]{64}$/.test(raw)) {
     return Buffer.from(raw, 'hex');

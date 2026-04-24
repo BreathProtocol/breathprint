@@ -8,7 +8,7 @@ import HUD from "../components/layout/HUD";
 import Cursor from "../components/layout/Cursor";
 
 export const metadata: Metadata = {
-  title: "BreathKYC — Verification",
+  title: "BreathPrint — Verification",
   description: "Next Generation Biometric Identity Verification",
 };
 

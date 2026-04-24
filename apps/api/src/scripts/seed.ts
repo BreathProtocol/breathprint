@@ -5,7 +5,7 @@ import crypto from 'crypto';
 const prisma = new PrismaClient();
 
 async function seed() {
-  console.log('🌱 Seeding BreathKYC database...\n');
+  console.log('🌱 Seeding BreathPrint database...\n');
 
   // 1. Create or find demo client
   let client = await prisma.client.findFirst({ where: { email: 'demo@breath.id' } });

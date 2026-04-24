@@ -53,5 +53,5 @@ app.get('/health', async (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`BreathKYC API running on http://0.0.0.0:${port}`);
+  console.log(`BreathPrint API running on http://0.0.0.0:${port}`);
 });

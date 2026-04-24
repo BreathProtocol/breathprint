@@ -1,6 +1,6 @@
 # Fully functional KYC MVP — structure
 
-This document turns your feature list into a **sequential, testable MVP** aligned with the existing Breath-KYC monorepo (`apps/web` + `apps/api`). It is **vendor-neutral**: you can implement OCR and face steps with **open-source** components or swap in a cloud API later without changing the overall shape.
+This document turns your feature list into a **sequential, testable MVP** aligned with the existing BreathPrint monorepo (`apps/web` + `apps/api`). It is **vendor-neutral**: you can implement OCR and face steps with **open-source** components or swap in a cloud API later without changing the overall shape.
 
 ---
 

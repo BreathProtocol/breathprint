@@ -7,7 +7,7 @@ import os
 
 # --- Page Config ---
 st.set_page_config(
-    page_title="Breath-KYC | Developer Portal",
+    page_title="BreathPrint | Developer Portal",
     page_icon="💨",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -78,7 +78,7 @@ st.markdown("""
 # --- Sidebar ---
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/breath.png", width=120)
-    st.markdown("### Breath-KYC Engine")
+    st.markdown("### BreathPrint Engine")
     st.write("v1.2.0-beta")
     
     st.divider()
@@ -87,7 +87,7 @@ with st.sidebar:
     st.info("Currently running in sandbox mode for testing.")
 
 # --- Main App ---
-st.markdown('<h1 class="main-title">Breath-KYC Verification</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-title">BreathPrint Verification</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Next-generation biometric identity verification system</p>', unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1], gap="large")
@@ -165,4 +165,4 @@ with col2:
 
 # --- Footer ---
 st.divider()
-st.caption("© 2026 Breath-KYC Systems. All rights reserved. Encrypted by AES-256-GCM.")
+st.caption("© 2026 BreathPrint Systems. All rights reserved. Encrypted by AES-256-GCM.")

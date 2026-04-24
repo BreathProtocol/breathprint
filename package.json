@@ -1,5 +1,5 @@
 {
-  "name": "breathkyc",
+  "name": "breathprint",
   "private": true,
   "workspaces": [
     "apps/*",
