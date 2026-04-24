@@ -1,0 +1,220 @@
+@import "tailwindcss";
+@import "@repo/tailwind-config";
+
+/* ── Breath Protocol 2 — Obsidian / Bone / Teal ─────────── */
+:root {
+  --obsidian: #07080C;
+  --nebula:   #101526;
+  --violet:   #2A1D45;
+  --teal:     #7AE0D4;
+  --bone:     #E8E6DE;
+  --dim:      #5c6170;
+
+  /* Derived surfaces */
+  --card-bg:          rgba(16, 21, 38, 0.4);
+  --card-border:      rgba(232, 230, 222, 0.12);
+  --bone-20:          rgba(232, 230, 222, 0.2);
+  --bone-10:          rgba(232, 230, 222, 0.1);
+  --bone-05:          rgba(232, 230, 222, 0.05);
+  --teal-20:          rgba(122, 224, 212, 0.2);
+  --teal-10:          rgba(122, 224, 212, 0.1);
+
+  --background: var(--obsidian);
+  --foreground: var(--bone);
+}
+
+@theme inline {
+  --color-obsidian: var(--obsidian);
+  --color-nebula:   var(--nebula);
+  --color-violet:   var(--violet);
+  --color-teal:     var(--teal);
+  --color-bone:     var(--bone);
+  --color-dim:      var(--dim);
+
+  /* Neutralize the old brand tokens — any lingering class falls to teal */
+  --color-primary:  var(--teal);
+  --color-accent:   var(--teal);
+  --color-error:    #FF6B8F;
+
+  --font-display:    'Oswald', sans-serif;
+  --font-mono:       'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --font-editorial:  'Cormorant Garamond', serif;
+  --font-sans:       var(--font-mono);
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+  background: var(--obsidian);
+}
+
+body {
+  font-family: var(--font-mono);
+  background: var(--obsidian);
+  color: var(--bone);
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 13px;
+}
+
+/* Touch devices get the native cursor */
+@media (hover: none), (pointer: coarse) {
+  body { cursor: auto; }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(232, 230, 222, 0.08);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(232, 230, 222, 0.18); }
+
+::selection { background: var(--teal); color: var(--obsidian); }
+
+/* ── Keyframes ──────────────────────────────────────────── */
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.8); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-dot-pulse     { animation: dotPulse 2s ease-in-out infinite; }
+.animate-fade-in       { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
+.animate-fade-in-up    { animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
+
+/* ── Typography helpers ─────────────────────────────────── */
+.font-display   { font-family: var(--font-display); }
+.font-mono      { font-family: var(--font-mono); }
+.font-editorial { font-family: var(--font-editorial); }
+
+.bp-display {
+  font-family: var(--font-display);
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.bp-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.bp-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.bp-readout {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  font-variant-numeric: tabular-nums;
+  color: var(--bone);
+}
+
+.bp-editorial {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* ── Card vocabulary ────────────────────────────────────── */
+.bp-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+/* ── Button vocabulary ──────────────────────────────────── */
+.bp-button {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--bone);
+  background: transparent;
+  border: 1px solid var(--bone-20);
+  padding: 14px 22px;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  cursor: none;
+}
+.bp-button:hover:not(:disabled) {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.bp-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Specimen viewport — camera frame with teal corner brackets ── */
+.bp-viewport {
+  position: relative;
+  background: var(--obsidian);
+  border: 1px solid var(--bone-10);
+  overflow: hidden;
+}
+.bp-viewport::before,
+.bp-viewport::after,
+.bp-viewport > .bp-corner-bl,
+.bp-viewport > .bp-corner-br {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--teal);
+  z-index: 3;
+  pointer-events: none;
+}
+.bp-viewport::before {
+  top: 8px; left: 8px;
+  border-right: none; border-bottom: none;
+}
+.bp-viewport::after {
+  top: 8px; right: 8px;
+  border-left: none; border-bottom: none;
+}
+.bp-viewport > .bp-corner-bl {
+  bottom: 8px; left: 8px;
+  border-right: none; border-top: none;
+}
+.bp-viewport > .bp-corner-br {
+  bottom: 8px; right: 8px;
+  border-left: none; border-top: none;
+}
+
+/* Circular specimen viewport — face + breath capture.
+   Drops the corner brackets and uses a teal ring with soft glow. */
+.bp-viewport-round {
+  position: relative;
+  background: var(--obsidian);
+  border: 1px solid var(--teal);
+  box-shadow: 0 0 24px rgba(122, 224, 212, 0.18), inset 0 0 32px rgba(7, 8, 12, 0.6);
+  overflow: hidden;
+  border-radius: 9999px;
+  aspect-ratio: 1 / 1;
+}

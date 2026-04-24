@@ -1,0 +1,11 @@
+node_modules
+.next
+.env
+.env.local
+*.db
+*.db-journal
+apps/web/dist/
+packages/*/dist/
+.turbo
+.vercel
+uploads/
