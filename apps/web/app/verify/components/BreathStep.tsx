@@ -4,14 +4,18 @@ import { useEffect, useRef, useState } from "react";
 import { useBreathEngine, BREATH_CYCLES_REQUIRED } from "../../../hooks/useBreathEngine";
 import { apiPost, apiPostForm } from "../../../lib/api";
 import { allowInsecureDevBypass } from "../../../lib/insecureContext";
+import { useSolanaWallet } from "../../../components/Web3AuthSolanaProvider";
+import { captureFrames, verifyOnChain, isOnChainEnabled } from "../../../lib/breathprint";
 
 interface BreathStepProps {
   sessionId: string;
-  onSuccess: () => void;
+  onSuccess: (zk?: { txSignature: string; solscanUrl: string }) => void;
   onFail: (reason: string) => void;
 }
 
 export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepProps) {
+  const solana = useSolanaWallet();
+  const [zkResult, setZkResult] = useState<{ txSignature: string; solscanUrl: string } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -118,13 +122,35 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
             : "Breath synchronization failed. Audio didn't match mouth physics.";
         setErrorMSG(errMsg);
       } else {
+        const zk = await runOnChainVerification();
         setStatus("result");
-        setTimeout(() => onSuccess(), 3000);
+        setTimeout(() => onSuccess(zk ?? undefined), 3000);
       }
     } catch (e) {
       console.error("[BreathStep] API error:", e);
       setStatus("result");
       setErrorMSG("Network transmission error. Check your connection and try again.");
+    }
+  };
+
+  /**
+   * After API confirms breath sync, generate the ZK verification proof
+   * (Hamming distance between stored Step-2 template and a fresh face
+   * capture) and submit it on-chain. Best-effort; silent skip on any error.
+   */
+  const runOnChainVerification = async (): Promise<{ txSignature: string; solscanUrl: string } | null> => {
+    if (!isOnChainEnabled()) return null;
+    if (!solana.publicKey || !solana.provider) return null;
+    if (!videoRef.current) return null;
+    try {
+      const frames = await captureFrames(videoRef.current, 8, 100);
+      if (frames.length < 4) return null;
+      const result = await verifyOnChain(frames, solana.provider, solana.publicKey);
+      if (result) setZkResult({ txSignature: result.txSignature, solscanUrl: result.solscanUrl });
+      return result;
+    } catch (err) {
+      console.warn("On-chain verification skipped:", err);
+      return null;
     }
   };
 
@@ -141,8 +167,9 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
         setStatus("result");
         setErrorMSG(data.error || "Breath verification failed.");
       } else {
+        const zk = await runOnChainVerification();
         setStatus("result");
-        setTimeout(() => onSuccess(), 3000);
+        setTimeout(() => onSuccess(zk ?? undefined), 3000);
       }
     } catch {
       setStatus("result");

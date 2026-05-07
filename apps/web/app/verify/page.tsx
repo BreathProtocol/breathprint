@@ -7,10 +7,13 @@ import FacialStep from "./components/FacialStep";
 import BreathStep from "./components/BreathStep";
 import ProgressBar from "./components/ProgressBar";
 import InsecureContextBanner from "./components/InsecureContextBanner";
+import SolanaConnectButton from "../../components/SolanaConnectButton";
 import { apiPost } from "../../lib/api";
 import { validateToken, DASHBOARD_URL } from "../../lib/auth";
 
 type StepState = "geolocation" | "face" | "breath" | "complete" | "failed";
+
+interface ZkSig { txSignature: string; solscanUrl: string }
 
 /* Shared centered-status shell */
 function StatusShell({
@@ -58,6 +61,8 @@ function VerifyContent() {
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<StepState>("geolocation");
   const [failReason, setFailReason] = useState<string>("");
+  const [faceZk, setFaceZk] = useState<ZkSig | null>(null);
+  const [breathZk, setBreathZk] = useState<ZkSig | null>(null);
   const [authChecked, setAuthChecked] = useState(bypassAuth);
   const [authValid, setAuthValid] = useState(bypassAuth);
 
@@ -183,6 +188,9 @@ function VerifyContent() {
           >
             Prove you are present.
           </p>
+          <div className="mt-6 flex justify-center">
+            <SolanaConnectButton />
+          </div>
         </div>
 
         {/* Progress Bar */}
@@ -206,7 +214,10 @@ function VerifyContent() {
         {currentStep === "face" && (
           <FacialStep
             sessionId={sessionId}
-            onSuccess={() => setCurrentStep("breath")}
+            onSuccess={(zk) => {
+              if (zk) setFaceZk(zk);
+              setCurrentStep("breath");
+            }}
             onFail={handleFail}
           />
         )}
@@ -214,7 +225,10 @@ function VerifyContent() {
         {currentStep === "breath" && (
           <BreathStep
             sessionId={sessionId}
-            onSuccess={() => setCurrentStep("complete")}
+            onSuccess={(zk) => {
+              if (zk) setBreathZk(zk);
+              setCurrentStep("complete");
+            }}
             onFail={handleFail}
           />
         )}
@@ -242,11 +256,46 @@ function VerifyContent() {
               verification.
             </p>
             <div
-              className="bp-readout mb-8"
+              className="bp-readout mb-4"
               style={{ fontSize: "10px", color: "var(--dim)" }}
             >
               SESSION · {sessionId.slice(0, 16).toUpperCase()}
             </div>
+            {(faceZk || breathZk) && (
+              <div className="space-y-2 mb-6">
+                {faceZk && (
+                  <a
+                    href={faceZk.solscanUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bp-label block"
+                    style={{ fontSize: "10px", color: "var(--teal)" }}
+                  >
+                    FACE · {faceZk.txSignature.slice(0, 8)}…{faceZk.txSignature.slice(-4)} ↗
+                  </a>
+                )}
+                {breathZk && (
+                  <a
+                    href={breathZk.solscanUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bp-label block"
+                    style={{ fontSize: "10px", color: "var(--teal)" }}
+                  >
+                    BREATH · {breathZk.txSignature.slice(0, 8)}…{breathZk.txSignature.slice(-4)} ↗
+                  </a>
+                )}
+              </div>
+            )}
+            <button
+              onClick={() =>
+                (window.location.href =
+                  "https://breath-protocol.vercel.app/explorer")
+              }
+              className="bp-button w-full justify-center mb-2"
+            >
+              View on Explorer
+            </button>
             <button
               onClick={() =>
                 (window.location.href =

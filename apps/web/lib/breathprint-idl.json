@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "name": "breathprint",
+  "instructions": [],
+  "accounts": [],
+  "events": [],
+  "errors": [],
+  "metadata": {
+    "address": "BPrnt1111111111111111111111111111111111111"
+  },
+  "_note": "Placeholder — overwritten by scripts/deploy-all.sh after anchor build."
+}

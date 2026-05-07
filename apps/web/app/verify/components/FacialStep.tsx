@@ -4,10 +4,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useFaceMesh } from "../../../hooks/useFaceMesh";
 import { apiPostForm } from "../../../lib/api";
 import { allowInsecureDevBypass, isInsecureContext } from "../../../lib/insecureContext";
+import { useSolanaWallet } from "../../../components/Web3AuthSolanaProvider";
+import {
+  captureFrames,
+  registerOnChain,
+  isOnChainEnabled,
+} from "../../../lib/breathprint";
 
 interface FacialStepProps {
   sessionId: string;
-  onSuccess: () => void;
+  onSuccess: (zk?: { txSignature: string; solscanUrl: string }) => void;
   onFail: (reason: string) => void;
 }
 
@@ -20,11 +26,13 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
   const selfieInputRef = useRef<HTMLInputElement>(null);
 
   const { isLoaded, faceDetected, liveness, landmarks } = useFaceMesh(videoRef);
+  const solana = useSolanaWallet();
 
   const [mediaMode, setMediaMode] = useState<"camera" | "upload">("camera");
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [status, setStatus] = useState<"scanning" | "uploading" | "result">("scanning");
+  const [status, setStatus] = useState<"scanning" | "uploading" | "zk" | "result">("scanning");
   const [errorMSG, setErrorMSG] = useState<string | null>(null);
+  const [zkResult, setZkResult] = useState<{ txSignature: string; solscanUrl: string } | null>(null);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -147,10 +155,13 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
           if (data.error || !data.passed) {
             setStatus("result");
             setErrorMSG(data.error || "Liveness check failed. Blink and move your head slightly.");
-          } else {
-            setStatus("result");
-            setTimeout(() => onSuccess(), 2000);
+            return;
           }
+
+          // API succeeded — now optionally register on Solana via ZK proof.
+          const zk = await runOnChainRegistration();
+          setStatus("result");
+          setTimeout(() => onSuccess(zk ?? undefined), 2000);
         } catch (err) {
           setStatus("result");
           setErrorMSG("Network transmission error.");
@@ -178,13 +189,38 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
         setStatus("result");
         setErrorMSG(data.error || "Face scan failed.");
       } else {
+        const zk = await runOnChainRegistration();
         setStatus("result");
-        setTimeout(() => onSuccess(), 2000);
+        setTimeout(() => onSuccess(zk ?? undefined), 2000);
       }
     } catch (err) {
       setStatus("result");
       setErrorMSG("Network transmission error.");
       console.error(err);
+    }
+  };
+
+  /**
+   * After the existing API call passes, generate a ZK proof and register
+   * the biometric commitment on Solana via Light Protocol. Best-effort:
+   * if anything fails (no Web3Auth wallet, program ID unset, RPC error),
+   * we silently skip — the existing API flow remains the source of truth.
+   */
+  const runOnChainRegistration = async (): Promise<{ txSignature: string; solscanUrl: string } | null> => {
+    if (!isOnChainEnabled()) return null;
+    if (!solana.publicKey || !solana.provider) return null;
+    if (!videoRef.current) return null;
+
+    try {
+      setStatus("zk");
+      const frames = await captureFrames(videoRef.current, 5, 120);
+      if (frames.length < 3) return null;
+      const result = await registerOnChain(frames, solana.provider, solana.publicKey);
+      if (result) setZkResult({ txSignature: result.txSignature, solscanUrl: result.solscanUrl });
+      return result;
+    } catch (err) {
+      console.warn("On-chain registration skipped:", err);
+      return null;
     }
   };
 
@@ -429,6 +465,24 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
         </div>
       )}
 
+      {status === "zk" && (
+        <div className="h-[420px] flex flex-col items-center justify-center gap-3 text-center">
+          <span
+            className="w-[8px] h-[8px] rounded-full animate-dot-pulse"
+            style={{
+              background: "var(--teal)",
+              boxShadow: "0 0 12px var(--teal)",
+            }}
+          />
+          <span className="bp-label" style={{ color: "var(--bone)" }}>
+            GENERATING · ZK PROOF
+          </span>
+          <span className="bp-label" style={{ fontSize: "9px", opacity: 0.5 }}>
+            COMMITTING TO SOLANA · LIGHT PROTOCOL
+          </span>
+        </div>
+      )}
+
       {status === "result" && (
         <div className="h-[420px] flex flex-col items-center justify-center text-center">
           {errorMSG ? (
@@ -481,6 +535,17 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
               >
                 Biometric template registered.
               </p>
+              {zkResult && (
+                <a
+                  href={zkResult.solscanUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bp-label mb-4"
+                  style={{ fontSize: "10px", color: "var(--teal)" }}
+                >
+                  ON-CHAIN · {zkResult.txSignature.slice(0, 8)}…{zkResult.txSignature.slice(-4)} ↗
+                </a>
+              )}
               <div className="flex items-center gap-2">
                 <span
                   className="w-[6px] h-[6px] rounded-full animate-dot-pulse"

@@ -6,6 +6,7 @@ import Script from "next/script";
 import AmbientBackground from "../components/layout/AmbientBackground";
 import HUD from "../components/layout/HUD";
 import Cursor from "../components/layout/Cursor";
+import Web3AuthSolanaProvider from "../components/Web3AuthSolanaProvider";
 
 export const metadata: Metadata = {
   title: "BreathPrint — Verification",
@@ -48,7 +49,9 @@ export default function RootLayout({
 })();`}
         </Script>
         <AmbientBackground />
-        <div className="relative z-[1] min-h-screen">{children}</div>
+        <Web3AuthSolanaProvider>
+          <div className="relative z-[1] min-h-screen">{children}</div>
+        </Web3AuthSolanaProvider>
         <HUD />
         <Cursor />
       </body>
