@@ -142,25 +142,56 @@ ArcFace converts a face image → 512 numbers (an "embedding"). Two photos of
 the same face give similar numbers; different faces give different numbers.
 That's how Step 3 verifies the face matches Step 2.
 
-**Recommended model: MobileFaceNet (5 MB)** — much smaller than full ArcFace
-(166 MB), still plenty accurate for a demo.
+**Model: ArcFace ResNet-100 (~249 MB)** from the official ONNX Model Zoo —
+the same architecture used in the InsightFace paper.
 
 ```bash
 mkdir -p apps/web/public/models
 cd apps/web/public/models
 
-# MobileFaceNet ONNX (5 MB)
+# Full ArcFace ResNet-100 ONNX (~249 MB)
 curl -L -o arcface.onnx \
   https://github.com/onnx/models/raw/main/validated/vision/body_analysis/arcface/model/arcfaceresnet100-8.onnx
 
-# Or the smaller MobileFaceNet variant if the above is still too big:
-# curl -L -o arcface.onnx \
-#   https://huggingface.co/Xenova/mobilefacenet/resolve/main/onnx/model.onnx
-
-ls -lh arcface.onnx
+ls -lh arcface.onnx   # should print ~249M
 ```
 
-Commit the file (or use Git LFS if it's > 100 MB).
+### ⚠️ Git LFS required (file is > 100 MB)
+
+GitHub blocks pushes of regular files larger than 100 MB. Install Git LFS
+first, then track the model:
+
+```bash
+# In the Codespace (already pre-installed) or locally:
+git lfs install
+
+# From the repo root:
+git lfs track "apps/web/public/models/*.onnx"
+git add .gitattributes
+git add apps/web/public/models/arcface.onnx
+git commit -m "Add ArcFace ResNet-100 ONNX via LFS"
+git push
+```
+
+Vercel supports Git LFS automatically — no extra config needed. The
+browser fetches `/models/arcface.onnx` at runtime; first load takes a few
+seconds on slow connections.
+
+### Alternative: host externally
+
+If you'd rather not store a 249 MB blob in git, upload `arcface.onnx` to
+any CDN (Vercel Blob, Supabase Storage, Cloudflare R2, S3) and override
+the model URL:
+
+```bash
+# In Vercel env:
+NEXT_PUBLIC_ARCFACE_MODEL_URL=https://your-cdn.com/arcface.onnx
+```
+
+Then pass that URL when initializing the SDK:
+```ts
+await sdk.init({ biometrics: { arcfaceModelUrl: process.env.NEXT_PUBLIC_ARCFACE_MODEL_URL } });
+```
 
 ---
 
