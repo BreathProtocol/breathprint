@@ -1,7 +1,7 @@
 [package]
 name = "breathprint"
 version = "0.1.0"
-description = "BreathPrint identity program — Light Protocol compressed PDAs for biometric commitments"
+description = "BreathPrint identity program — biometric commitments stored as Anchor PDAs"
 edition = "2021"
 license = "Apache-2.0"
 
@@ -19,7 +19,3 @@ idl-build = ["anchor-lang/idl-build"]
 
 [dependencies]
 anchor-lang = "0.30.1"
-light-sdk = "0.11.0"
-light-sdk-macros = "0.11.0"
-light-hasher = "1.1.0"
-borsh = "0.10.3"

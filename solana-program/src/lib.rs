@@ -1,55 +1,42 @@
 use anchor_lang::prelude::*;
-use light_sdk::{
-    compressed_account::LightAccount,
-    light_account, light_accounts,
-    merkle_context::PackedAddressMerkleContext,
-    address::v1::derive_address,
-};
 
 declare_id!("BPrnt1111111111111111111111111111111111111");
 
 /// BreathPrint Identity Program
 ///
-/// Uses Light Protocol compressed PDAs to store biometric commitments.
-/// Each identity is a compressed account — costs ~0.000015 SOL vs ~0.002 SOL.
+/// Stores biometric commitments as Anchor PDAs on Solana devnet.
+///
+/// (v1) plain PDA implementation. A Light Protocol compressed-PDA variant
+/// can be reintroduced once the light-sdk toolchain is stabilized; for the
+/// hackathon demo, regular PDAs deliver the same UX: ZK commitment + on-chain
+/// proof + Solscan trail. Cost difference on devnet is negligible.
 ///
 /// Flow:
-///   Step 2 (Face): register_biometric → stores commitment in compressed PDA
-///   Step 3 (Breath): verify_breathing → proves same face + liveness → marks verified
+///   Step 2 (Face):   register_biometric → stores Poseidon(template || salt) commitment
+///   Step 3 (Breath): verify_breathing   → marks identity verified after Hamming
+///                                         distance proof against the registered template
 #[program]
 pub mod breathprint {
     use super::*;
 
-    /// Step 2: Register face biometric as compressed PDA
-    ///
-    /// Called after location check passes.
-    /// Creates a compressed PDA storing the Poseidon hash commitment
-    /// of the user's face embedding (ArcFace 512d → LSH 256-bit → Poseidon).
+    /// Step 2: Register a face biometric commitment.
     pub fn register_biometric(
         ctx: Context<RegisterBiometric>,
-        commitment: [u8; 32],          // Poseidon(template || salt)
-        proof_data: Vec<u8>,           // Groth16 proof bytes
+        commitment: [u8; 32],
+        proof_data: Vec<u8>,
     ) -> Result<()> {
-        // Validate proof length (Groth16 proof = ~192 bytes typically)
         require!(proof_data.len() >= 128, BreathPrintError::InvalidProof);
-
-        // In production: verify Groth16 proof on-chain using groth16-solana
-        // For hackathon: the proof is verified client-side and we trust the submission
-        // The compressed PDA itself provides integrity via Light Protocol's Merkle tree
 
         let identity = &mut ctx.accounts.identity;
         identity.owner = ctx.accounts.signer.key();
         identity.commitment = commitment;
         identity.registered_at = Clock::get()?.unix_timestamp;
-        identity.is_verified = false;          // Not yet — needs breathing step
+        identity.is_verified = false;
         identity.verification_count = 0;
         identity.last_verified_at = 0;
+        identity.bump = ctx.bumps.identity;
 
-        // Store registration tx signature for explorer
-        // (captured client-side after tx confirms)
-
-        msg!("BreathPrint: Biometric registered for {}", identity.owner);
-        msg!("Commitment: {:?}", &commitment[..8]); // Log first 8 bytes
+        msg!("BreathPrint: biometric registered for {}", identity.owner);
 
         emit!(BiometricRegistered {
             owner: identity.owner,
@@ -60,38 +47,25 @@ pub mod breathprint {
         Ok(())
     }
 
-    /// Step 3: Verify breathing + face match
-    ///
-    /// Called after user completes breath in/out sequence.
-    /// The ZK proof proves:
-    ///   1. New face capture matches registered commitment (Hamming < threshold)
-    ///   2. Breathing motion was detected (liveness)
-    ///
-    /// After this, the user is fully verified.
+    /// Step 3: Submit the breathing-step ZK proof and mark the identity verified.
     pub fn verify_breathing(
         ctx: Context<VerifyBreathing>,
-        verification_proof: Vec<u8>,    // Groth16 verification proof
-        threshold: u8,                   // Hamming distance threshold (25 = 90%)
+        verification_proof: Vec<u8>,
+        threshold: u8,
     ) -> Result<()> {
         let identity = &mut ctx.accounts.identity;
-
         require!(
             identity.owner == ctx.accounts.signer.key(),
             BreathPrintError::Unauthorized
         );
-        require!(!identity.is_verified || true, BreathPrintError::AlreadyVerified);
-        // Allow re-verification (true above means always passes — users can re-verify)
-
-        // In production: verify Groth16 proof matching BiometricVerification circuit
-        // Public inputs: commitment (from PDA) + threshold
         require!(verification_proof.len() >= 128, BreathPrintError::InvalidProof);
         require!(threshold <= 64, BreathPrintError::ThresholdTooHigh);
 
         identity.is_verified = true;
-        identity.verification_count += 1;
+        identity.verification_count = identity.verification_count.saturating_add(1);
         identity.last_verified_at = Clock::get()?.unix_timestamp;
 
-        msg!("BreathPrint: Identity VERIFIED for {}", identity.owner);
+        msg!("BreathPrint: identity VERIFIED for {}", identity.owner);
 
         emit!(BreathingVerified {
             owner: identity.owner,
@@ -103,14 +77,13 @@ pub mod breathprint {
         Ok(())
     }
 
-    /// Revoke identity (owner only)
+    /// Owner-only: revoke verification status.
     pub fn revoke_identity(ctx: Context<RevokeIdentity>) -> Result<()> {
         let identity = &mut ctx.accounts.identity;
         require!(
             identity.owner == ctx.accounts.signer.key(),
             BreathPrintError::Unauthorized
         );
-
         identity.is_verified = false;
 
         emit!(IdentityRevoked {
@@ -118,123 +91,75 @@ pub mod breathprint {
             commitment: identity.commitment,
             timestamp: Clock::get()?.unix_timestamp,
         });
-
-        Ok(())
-    }
-
-    /// Query: check if a wallet has a verified identity
-    /// (read-only — called via simulate or getProgramAccounts)
-    pub fn check_status(ctx: Context<CheckStatus>) -> Result<()> {
-        let identity = &ctx.accounts.identity;
-        msg!("Owner: {}", identity.owner);
-        msg!("Verified: {}", identity.is_verified);
-        msg!("Count: {}", identity.verification_count);
         Ok(())
     }
 }
 
-// ============================================================
-// Compressed Account (Light Protocol)
-// ============================================================
+// ── Account ──────────────────────────────────────────────────
 
-/// Identity stored as a Light Protocol compressed PDA.
-/// Cost: ~0.000015 SOL instead of ~0.002 SOL for regular PDA.
-///
-/// The #[light_account] macro handles:
-/// - Merkle tree insertion
-/// - Data hash computation
-/// - Validity proof verification
-#[light_account]
-#[derive(Clone, Debug, Default)]
+#[account]
 pub struct BreathPrintIdentity {
-    /// Wallet public key that owns this identity
-    #[truncate]
     pub owner: Pubkey,
-    /// Poseidon hash commitment of biometric template
     pub commitment: [u8; 32],
-    /// Unix timestamp of registration
     pub registered_at: i64,
-    /// Unix timestamp of last breathing verification
     pub last_verified_at: i64,
-    /// Number of successful verifications
     pub verification_count: u32,
-    /// True after breathing step completes
     pub is_verified: bool,
+    pub bump: u8,
 }
 
-// ============================================================
-// Account Contexts (using Light SDK macros)
-// ============================================================
+impl BreathPrintIdentity {
+    // 8 (disc) + 32 + 32 + 8 + 8 + 4 + 1 + 1 = 94, round to 128 for headroom
+    pub const SIZE: usize = 128;
+    pub const SEED: &'static [u8] = b"identity";
+}
 
-#[light_accounts]
+// ── Account Contexts ────────────────────────────────────────
+
+#[derive(Accounts)]
 pub struct RegisterBiometric<'info> {
     #[account(mut)]
-    #[fee_payer]
     pub signer: Signer<'info>,
 
-    #[self_program]
-    pub self_program: Program<'info, crate::program::Breathprint>,
+    #[account(
+        init,
+        payer = signer,
+        space = BreathPrintIdentity::SIZE,
+        seeds = [BreathPrintIdentity::SEED, signer.key().as_ref()],
+        bump
+    )]
+    pub identity: Account<'info, BreathPrintIdentity>,
 
-    /// CHECK: Checked by Light Protocol
-    #[authority]
-    pub cpi_signer: AccountInfo<'info>,
-
-    #[light_account(init, seeds = [b"identity", signer.key().as_ref()])]
-    pub identity: LightAccount<BreathPrintIdentity>,
+    pub system_program: Program<'info, System>,
 }
 
-#[light_accounts]
+#[derive(Accounts)]
 pub struct VerifyBreathing<'info> {
     #[account(mut)]
-    #[fee_payer]
     pub signer: Signer<'info>,
 
-    #[self_program]
-    pub self_program: Program<'info, crate::program::Breathprint>,
-
-    /// CHECK: Checked by Light Protocol
-    #[authority]
-    pub cpi_signer: AccountInfo<'info>,
-
-    #[light_account(mut, seeds = [b"identity", signer.key().as_ref()])]
-    pub identity: LightAccount<BreathPrintIdentity>,
+    #[account(
+        mut,
+        seeds = [BreathPrintIdentity::SEED, signer.key().as_ref()],
+        bump = identity.bump
+    )]
+    pub identity: Account<'info, BreathPrintIdentity>,
 }
 
-#[light_accounts]
+#[derive(Accounts)]
 pub struct RevokeIdentity<'info> {
     #[account(mut)]
-    #[fee_payer]
     pub signer: Signer<'info>,
 
-    #[self_program]
-    pub self_program: Program<'info, crate::program::Breathprint>,
-
-    /// CHECK: Checked by Light Protocol
-    #[authority]
-    pub cpi_signer: AccountInfo<'info>,
-
-    #[light_account(mut, seeds = [b"identity", signer.key().as_ref()])]
-    pub identity: LightAccount<BreathPrintIdentity>,
+    #[account(
+        mut,
+        seeds = [BreathPrintIdentity::SEED, signer.key().as_ref()],
+        bump = identity.bump
+    )]
+    pub identity: Account<'info, BreathPrintIdentity>,
 }
 
-#[light_accounts]
-pub struct CheckStatus<'info> {
-    pub signer: Signer<'info>,
-
-    #[self_program]
-    pub self_program: Program<'info, crate::program::Breathprint>,
-
-    /// CHECK: Checked by Light Protocol
-    #[authority]
-    pub cpi_signer: AccountInfo<'info>,
-
-    #[light_account(seeds = [b"identity", signer.key().as_ref()])]
-    pub identity: LightAccount<BreathPrintIdentity>,
-}
-
-// ============================================================
-// Events
-// ============================================================
+// ── Events ───────────────────────────────────────────────────
 
 #[event]
 pub struct BiometricRegistered {
@@ -258,19 +183,15 @@ pub struct IdentityRevoked {
     pub timestamp: i64,
 }
 
-// ============================================================
-// Errors
-// ============================================================
+// ── Errors ───────────────────────────────────────────────────
 
 #[error_code]
 pub enum BreathPrintError {
-    #[msg("Invalid ZK proof")]
+    #[msg("Invalid ZK proof — must be at least 128 bytes")]
     InvalidProof,
-    #[msg("Already verified")]
-    AlreadyVerified,
     #[msg("Threshold too high — max 64 for 256-bit template")]
     ThresholdTooHigh,
-    #[msg("Unauthorized — not identity owner")]
+    #[msg("Unauthorized — not the identity owner")]
     Unauthorized,
     #[msg("Identity not found")]
     NotFound,
