@@ -1,6 +1,6 @@
 {
-  "name": "@breathprint/sdk",
-  "version": "0.1.0",
+  "name": "@repo/sdk",
+  "version": "0.0.0",
   "description": "BreathPrint TypeScript SDK — biometric extraction, ZK proof generation, Light Protocol client",
   "type": "module",
   "main": "dist/index.js",
