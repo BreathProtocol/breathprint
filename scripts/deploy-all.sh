@@ -45,21 +45,37 @@ LAMPORTS=$(get_balance)
 echo "  Current balance: $((LAMPORTS / 1000000000)) SOL ($LAMPORTS lamports)"
 
 attempt=0
-while [ "$LAMPORTS" -lt 4000000000 ] && [ $attempt -lt 5 ]; do
+while [ "$LAMPORTS" -lt 2000000000 ] && [ $attempt -lt 3 ]; do
   attempt=$((attempt + 1))
-  echo "▸ Airdropping 2 SOL (attempt $attempt/5)…"
-  if solana airdrop 2 2>&1 | grep -q "Error"; then
-    echo "  Faucet rate-limited, sleeping 10s…"
-    sleep 10
+  echo "▸ Airdropping 1 SOL (attempt $attempt/3)…"
+  if solana airdrop 1 2>&1 | grep -q "Error"; then
+    echo "  Faucet rate-limited, sleeping 5s…"
+    sleep 5
   else
     sleep 5
   fi
   LAMPORTS=$(get_balance)
 done
 
-if [ "$LAMPORTS" -lt 2000000000 ]; then
-  echo "✗ Couldn't get enough SOL via airdrop. Visit https://faucet.solana.com manually,"
-  echo "  paste your pubkey, then re-run this script."
+if [ "$LAMPORTS" -lt 1500000000 ]; then
+  cat <<MSG
+✗ Couldn't get enough SOL via the default airdrop (devnet faucet is rate-limited).
+
+  Top up manually using ANY of these — they all dispense to the same pubkey:
+
+    https://www.helius.dev/faucets/solana    (most reliable)
+    https://faucet.quicknode.com/solana/devnet
+    https://solfaucet.com/
+    https://faucet.triangleplatform.com/solana/devnet
+
+  Your deployer pubkey:
+    $(solana address)
+
+  Or, with your Helius API key:
+    solana airdrop 1 --url "https://devnet.helius-rpc.com/?api-key=YOUR_KEY"
+
+  Then re-run this script — it'll skip ahead since balance is now ≥ 1.5 SOL.
+MSG
   exit 1
 fi
 
