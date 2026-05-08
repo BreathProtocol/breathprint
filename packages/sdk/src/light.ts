@@ -19,7 +19,7 @@ import * as snarkjs from "snarkjs";
 
 // ── Configuration ──────────────────────────────────────────
 
-const BREATHPRINT_PROGRAM_ID = new PublicKey("BPrnt1111111111111111111111111111111111111");
+const BREATHPRINT_PROGRAM_ID = new PublicKey("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 // Helius RPC with Light Protocol indexer (devnet)
 const HELIUS_RPC = "https://devnet.helius-rpc.com/?api-key=YOUR_HELIUS_KEY";

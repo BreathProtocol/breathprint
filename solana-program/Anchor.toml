@@ -7,10 +7,10 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-breathprint = "BPrnt1111111111111111111111111111111111111"
+breathprint = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
 [programs.localnet]
-breathprint = "BPrnt1111111111111111111111111111111111111"
+breathprint = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
 [provider]
 cluster = "devnet"
