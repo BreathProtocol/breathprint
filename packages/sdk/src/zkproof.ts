@@ -70,7 +70,7 @@ export async function generateRegistrationProof(
   paths: CircuitPaths
 ): Promise<ProveResult> {
   const input = {
-    template: templateChunks.map((c) => c.toString()),
+    tpl: templateChunks.map((c) => c.toString()),
     salt: salt.toString(),
     commitment: computeCommitment(templateChunks, salt).toString(),
   };
@@ -105,8 +105,8 @@ export async function generateVerificationProof(
 
   const commitment = computeCommitment(registeredChunks, salt);
   const input = {
-    registered_template: registeredChunks.map((c) => c.toString()),
-    new_template: newChunks.map((c) => c.toString()),
+    registered_tpl: registeredChunks.map((c) => c.toString()),
+    new_tpl: newChunks.map((c) => c.toString()),
     salt: salt.toString(),
     commitment: commitment.toString(),
     threshold: threshold.toString(),

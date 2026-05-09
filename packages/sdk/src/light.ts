@@ -97,7 +97,7 @@ export class BreathPrintClient {
     // 2. Generate ZK proof
     const { proof } = await snarkjs.groth16.fullProve(
       {
-        template: templateChunks.map(String),
+        tpl: templateChunks.map(String),
         salt: salt.toString(),
         commitment: commitmentBigInt.toString(),
       },
@@ -167,8 +167,8 @@ export class BreathPrintClient {
     const commitment = this.computeCommitment(registeredChunks, salt);
     const { proof } = await snarkjs.groth16.fullProve(
       {
-        registered_template: registeredChunks.map(String),
-        new_template: newChunks.map(String),
+        registered_tpl: registeredChunks.map(String),
+        new_tpl: newChunks.map(String),
         salt: salt.toString(),
         commitment: commitment.toString(),
         threshold: threshold.toString(),
