@@ -34,11 +34,14 @@ avm install 0.30.1
 avm use 0.30.1
 
 echo ""
-echo "▸ [3/3] Circom v2.1.9 (precompiled)"
+echo "▸ [3/3] Circom (compile from source — ~2 min, works on any glibc)"
 if ! command -v circom &> /dev/null; then
-  curl -L -o /tmp/circom https://github.com/iden3/circom/releases/download/v2.1.9/circom-linux-amd64
-  chmod +x /tmp/circom
-  sudo mv /tmp/circom /usr/local/bin/circom
+  cargo install --git https://github.com/iden3/circom.git --force
+  # Older fallback path: precompiled binary (often fails with GLIBC errors on
+  # Codespace base image). Kept commented for reference.
+  # curl -L -o /tmp/circom https://github.com/iden3/circom/releases/download/v2.1.9/circom-linux-amd64
+  # chmod +x /tmp/circom
+  # sudo mv /tmp/circom /usr/local/bin/circom
 else
   echo "  ✓ already installed: $(circom --version)"
 fi
