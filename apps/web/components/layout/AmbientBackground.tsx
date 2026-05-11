@@ -18,9 +18,9 @@ export default function AmbientBackground() {
         className="absolute inset-0"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse 1100px 800px at 22% 28%, rgba(138, 96, 220, 0.28), transparent 65%),
-            radial-gradient(ellipse 900px 700px at 78% 72%, rgba(122, 224, 212, 0.16), transparent 65%),
-            radial-gradient(ellipse 700px 520px at 50% 50%, rgba(90, 60, 160, 0.10), transparent 70%)
+            radial-gradient(ellipse 1100px 800px at 22% 28%, rgba(233, 214, 196, 0.55), transparent 65%),
+            radial-gradient(ellipse 900px 700px at 78% 72%, rgba(201, 123, 94, 0.10), transparent 65%),
+            radial-gradient(ellipse 700px 520px at 50% 50%, rgba(251, 246, 236, 0.60), transparent 70%)
           `,
         }}
       />
@@ -30,8 +30,8 @@ export default function AmbientBackground() {
         className="absolute inset-0"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(232, 230, 222, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(232, 230, 222, 0.02) 1px, transparent 1px)
+            linear-gradient(rgba(31, 26, 20, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(31, 26, 20, 0.04) 1px, transparent 1px)
           `,
           backgroundSize: "80px 80px",
         }}
@@ -42,7 +42,7 @@ export default function AmbientBackground() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%)",
+            "radial-gradient(ellipse at center, transparent 55%, rgba(31, 26, 20, 0.08) 100%)",
           mixBlendMode: "multiply",
         }}
       />
@@ -64,7 +64,7 @@ export default function AmbientBackground() {
         className="absolute inset-0"
         style={{
           background:
-            "repeating-linear-gradient(to bottom, rgba(255,255,255,0.02) 0 1px, transparent 1px 3px)",
+            "repeating-linear-gradient(to bottom, rgba(31, 26, 20, 0.025) 0 1px, transparent 1px 3px)",
           opacity: 0.4,
         }}
       />

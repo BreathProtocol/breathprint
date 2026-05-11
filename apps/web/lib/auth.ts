@@ -15,5 +15,3 @@ export async function validateToken(accessToken: string) {
   if (error || !data.user) return null;
   return data.user;
 }
-
-export const DASHBOARD_URL = "https://breath-protocol.vercel.app";
