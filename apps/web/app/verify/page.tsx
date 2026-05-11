@@ -9,7 +9,7 @@ import ProgressBar from "./components/ProgressBar";
 import InsecureContextBanner from "./components/InsecureContextBanner";
 import SolanaConnectButton from "../../components/SolanaConnectButton";
 import { apiPost } from "../../lib/api";
-import { validateToken, DASHBOARD_URL } from "../../lib/auth";
+import { validateToken } from "../../lib/auth";
 
 type StepState = "geolocation" | "face" | "breath" | "complete" | "failed";
 
