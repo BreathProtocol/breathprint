@@ -113,8 +113,21 @@ cp build/breath_identity_js/breath_identity.wasm "$REPO_ROOT/apps/web/public/cir
 cp build/breath_identity_final.zkey               "$REPO_ROOT/apps/web/public/circuits/"
 
 # IDL → consumable by the SDK
+# Anchor's IDL generation is flaky on Codespace universal:2 image — when it
+# silently no-ops, target/idl/ is empty. We keep the hand-written IDL at
+# apps/web/lib/breathprint-idl.json as the source of truth in that case.
 mkdir -p "$REPO_ROOT/apps/web/lib"
-cp "$REPO_ROOT/solana-program/target/idl/breathprint.json" "$REPO_ROOT/apps/web/lib/breathprint-idl.json"
+if [ -f "$REPO_ROOT/solana-program/target/idl/breathprint.json" ]; then
+  cp "$REPO_ROOT/solana-program/target/idl/breathprint.json" "$REPO_ROOT/apps/web/lib/breathprint-idl.json"
+  echo "  IDL: copied from anchor build"
+else
+  echo "  IDL: anchor build produced no IDL, keeping hand-written one"
+fi
+
+# Patch the metadata.address in the IDL to match the deployed program
+if [ -n "$PROGRAM_ID" ]; then
+  sed -i "s|\"address\": \"[^\"]*\"|\"address\": \"$PROGRAM_ID\"|" "$REPO_ROOT/apps/web/lib/breathprint-idl.json" || true
+fi
 
 # ── 8. Done ───────────────────────────────────────────────────
 cat <<EOF
