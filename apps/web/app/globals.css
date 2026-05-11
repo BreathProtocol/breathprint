@@ -56,7 +56,6 @@ body {
   font-family: var(--font-mono);
   background: var(--obsidian);
   color: var(--bone);
-  cursor: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 13px;
@@ -161,7 +160,6 @@ body {
   border: 1px solid var(--bone-20);
   padding: 14px 22px;
   transition: border-color 0.2s ease, color 0.2s ease;
-  cursor: none;
 }
 .bp-button:hover:not(:disabled) {
   border-color: var(--teal);
