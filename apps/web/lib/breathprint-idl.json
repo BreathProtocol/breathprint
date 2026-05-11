@@ -1,12 +1,90 @@
 {
   "version": "0.1.0",
   "name": "breathprint",
-  "instructions": [],
-  "accounts": [],
-  "events": [],
-  "errors": [],
+  "instructions": [
+    {
+      "name": "registerBiometric",
+      "accounts": [
+        { "name": "signer", "isMut": true, "isSigner": true },
+        { "name": "identity", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "commitment", "type": { "array": ["u8", 32] } },
+        { "name": "proofData", "type": "bytes" }
+      ]
+    },
+    {
+      "name": "verifyBreathing",
+      "accounts": [
+        { "name": "signer", "isMut": true, "isSigner": true },
+        { "name": "identity", "isMut": true, "isSigner": false }
+      ],
+      "args": [
+        { "name": "verificationProof", "type": "bytes" },
+        { "name": "threshold", "type": "u8" }
+      ]
+    },
+    {
+      "name": "revokeIdentity",
+      "accounts": [
+        { "name": "signer", "isMut": true, "isSigner": true },
+        { "name": "identity", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BreathPrintIdentity",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "owner", "type": "publicKey" },
+          { "name": "commitment", "type": { "array": ["u8", 32] } },
+          { "name": "registeredAt", "type": "i64" },
+          { "name": "lastVerifiedAt", "type": "i64" },
+          { "name": "verificationCount", "type": "u32" },
+          { "name": "isVerified", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "BiometricRegistered",
+      "fields": [
+        { "name": "owner", "type": "publicKey", "index": false },
+        { "name": "commitment", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "timestamp", "type": "i64", "index": false }
+      ]
+    },
+    {
+      "name": "BreathingVerified",
+      "fields": [
+        { "name": "owner", "type": "publicKey", "index": false },
+        { "name": "commitment", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "timestamp", "type": "i64", "index": false },
+        { "name": "verificationCount", "type": "u32", "index": false }
+      ]
+    },
+    {
+      "name": "IdentityRevoked",
+      "fields": [
+        { "name": "owner", "type": "publicKey", "index": false },
+        { "name": "commitment", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "timestamp", "type": "i64", "index": false }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InvalidProof", "msg": "Invalid ZK proof — must be at least 128 bytes" },
+    { "code": 6001, "name": "ThresholdTooHigh", "msg": "Threshold too high — max 64 for 256-bit template" },
+    { "code": 6002, "name": "Unauthorized", "msg": "Unauthorized — not the identity owner" },
+    { "code": 6003, "name": "NotFound", "msg": "Identity not found" }
+  ],
   "metadata": {
     "address": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
-  },
-  "_note": "Placeholder — overwritten by scripts/deploy-all.sh after anchor build."
+  }
 }
