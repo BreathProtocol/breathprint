@@ -1,7 +1,7 @@
 /**
- * Ambient cream background — shared across every non-landing route.
- * The 3D helix only lives on /landing.html. App pages get a calmer
- * vocabulary: cream paper, warm violet/teal glows, faint grain + scanlines.
+ * Ambient background — matches vertebra.breath.id dashboard exactly:
+ * pure white page with grid dust, faint vignette, grain, scanlines.
+ * No cream/terracotta glows — those were too warm next to the dashboard.
  *
  * Fixed, z-0, pointer-events-none. Rendered once from layout.tsx.
  */
@@ -12,18 +12,6 @@ export default function AmbientBackground() {
       className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
       style={{ background: "var(--obsidian)" }}
     >
-      {/* Warm glow layer — soft tan + terracotta nebulas on cream */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `
-            radial-gradient(ellipse 1100px 800px at 22% 28%, rgba(233, 214, 196, 0.55), transparent 65%),
-            radial-gradient(ellipse 900px 700px at 78% 72%, rgba(201, 123, 94, 0.10), transparent 65%),
-            radial-gradient(ellipse 700px 520px at 50% 50%, rgba(251, 246, 236, 0.60), transparent 70%)
-          `,
-        }}
-      />
-
       {/* Paper grid — 1px lines every 80px */}
       <div
         className="absolute inset-0"
@@ -36,12 +24,12 @@ export default function AmbientBackground() {
         }}
       />
 
-      {/* Vignette — soft dark fall-off at the edges */}
+      {/* Vignette — soft dark fall-off at the edges (dashboard parity) */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 55%, rgba(31, 26, 20, 0.08) 100%)",
+            "radial-gradient(ellipse at center, transparent 55%, rgba(31, 26, 20, 0.06) 100%)",
           mixBlendMode: "multiply",
         }}
       />

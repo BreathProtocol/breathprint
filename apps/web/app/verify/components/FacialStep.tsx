@@ -94,7 +94,7 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (landmarks && landmarks.length > 0) {
-      ctx.fillStyle = "#C97B5E"; // teal — brand accent
+      ctx.fillStyle = "#7AE0D4"; // HUD cyan for biometric mesh dots
       (landmarks as { x: number; y: number }[]).forEach((point) => {
         ctx.beginPath();
         ctx.arc(point.x * canvas.width, point.y * canvas.height, 1, 0, 2 * Math.PI);

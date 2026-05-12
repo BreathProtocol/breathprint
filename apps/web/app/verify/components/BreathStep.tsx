@@ -187,7 +187,7 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (mouthLandmarks.length === 4) {
-      ctx.fillStyle = "#C97B5E";
+      ctx.fillStyle = "#7AE0D4"; // HUD cyan for biometric mouth landmarks
       mouthLandmarks.forEach((point: { x: number; y: number }) => {
         ctx.beginPath();
         ctx.arc(point.x * canvas.width, point.y * canvas.height, 2, 0, 2 * Math.PI);
@@ -416,7 +416,7 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
                 cy="50"
                 r="49"
                 fill="none"
-                stroke="var(--teal)"
+                stroke="var(--cyan)"
                 strokeWidth="1.5"
                 strokeDasharray="308"
                 strokeDashoffset={
@@ -430,7 +430,7 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
                 strokeLinecap="round"
                 style={{
                   transition: "stroke-dashoffset 0.3s ease",
-                  filter: "drop-shadow(0 0 6px var(--teal))",
+                  filter: "drop-shadow(0 0 6px var(--cyan))",
                 }}
               />
             </svg>

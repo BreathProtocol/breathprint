@@ -3,22 +3,27 @@
 
 /* ── Breath Protocol 3 — Cream / Bone / Terracotta (Tripo Helix Light) ─── */
 :root {
-  /* ── Breath Protocol — Cream / Bone / Terracotta ── */
-  --obsidian: #F4EFE6;   /* cream page bg */
-  --nebula:   #FBF6EC;   /* lighter cream surface */
-  --violet:   #E9D6C4;   /* warm tan accent */
-  --teal:     #C97B5E;   /* terracotta accent */
+  /* ── Breath Protocol — White / Bone / Terracotta ──
+     Matches vertebra.breath.id dashboard: pure white page, terracotta
+     accent. The cream was too warm next to the dashboard side-by-side. */
+  --obsidian: #FFFFFF;   /* page bg */
+  --nebula:   #FFFFFF;   /* surface */
+  --violet:   #F2F2F2;   /* light grey accent */
+  --teal:     #C97B5E;   /* terracotta accent (default brand) */
+  --cyan:     #7AE0D4;   /* original HUD cyan — used for biometric overlays */
   --bone:     #1F1A14;   /* near-black foreground */
   --dim:      #807466;   /* muted brown */
 
   /* Derived surfaces */
-  --card-bg:          rgba(251, 246, 236, 0.65);
+  --card-bg:          rgba(255, 255, 255, 0.65);
   --card-border:      rgba(31, 26, 20, 0.14);
   --bone-20:          rgba(31, 26, 20, 0.2);
   --bone-10:          rgba(31, 26, 20, 0.1);
   --bone-05:          rgba(31, 26, 20, 0.05);
   --teal-20:          rgba(201, 123, 94, 0.2);
   --teal-10:          rgba(201, 123, 94, 0.1);
+  --cyan-20:          rgba(122, 224, 212, 0.2);
+  --cyan-10:          rgba(122, 224, 212, 0.1);
 
   --background: var(--obsidian);
   --foreground: var(--bone);
@@ -185,7 +190,7 @@ body {
   position: absolute;
   width: 18px;
   height: 18px;
-  border: 1px solid var(--teal);
+  border: 1px solid var(--cyan); /* HUD cyan for biometric camera brackets */
   z-index: 3;
   pointer-events: none;
 }
