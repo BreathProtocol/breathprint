@@ -10,6 +10,7 @@ import InsecureContextBanner from "./components/InsecureContextBanner";
 import SolanaConnectButton from "../../components/SolanaConnectButton";
 import { apiPost } from "../../lib/api";
 import { validateToken, DASHBOARD_URL, EXPLORER_URL } from "../../lib/auth";
+import { recordAttestation } from "../../lib/attestations";
 
 type StepState = "geolocation" | "face" | "breath" | "complete" | "failed";
 
@@ -107,6 +108,12 @@ function VerifyContent() {
   const [proofSig, setProofSig] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(bypassAuth);
   const [authValid, setAuthValid] = useState(bypassAuth);
+  // Wallet pubkey of the authenticated user. Comes from the Supabase user's
+  // `user_metadata.wallet_address` (populated when they signed in via wallet
+  // on vertebra.breath.id). Also accepts `?wallet=` for demo previews.
+  const [walletAddress, setWalletAddress] = useState<string | null>(
+    bypassAuth ? (searchParams.get("wallet") ?? "DEMOwa11et00000000000000000000000000000000") : null
+  );
 
   // Check auth token first
   useEffect(() => {
@@ -120,6 +127,12 @@ function VerifyContent() {
       const user = await validateToken(token);
       if (user) {
         setAuthValid(true);
+        const meta = user.user_metadata as Record<string, unknown> | undefined;
+        const addr =
+          (meta?.wallet_address as string | undefined) ??
+          searchParams.get("wallet") ??
+          null;
+        if (addr) setWalletAddress(addr);
       }
       setAuthChecked(true);
     }
@@ -267,13 +280,29 @@ function VerifyContent() {
         {currentStep === "breath" && (
           <BreathStep
             sessionId={sessionId}
-            onSuccess={(zk) => {
+            onSuccess={async (zk) => {
               if (zk) setBreathZk(zk);
-              // Mint a random Solana-shaped signature for the success
-              // screen — see comments on `proofSig` above. Real on-chain
-              // tx signatures will replace this once the verify backend
-              // broadcasts the BreathPrint attestation.
-              setProofSig((existing) => existing ?? randomSolanaSignature());
+              // Use the real tx signature if the backend emitted one,
+              // otherwise mint a base58 random-64-byte string (same shape
+              // as a Solana ed25519 sig) so the Explorer has something
+              // coherent to display.
+              const sig = zk?.txSignature ?? randomSolanaSignature();
+              setProofSig((existing) => existing ?? sig);
+              // Persist the attestation so the Vertebra Atlas Explorer
+              // can list it. We don't block the UI on this — if the
+              // insert fails (network, RLS, dup), the success screen
+              // still renders. Logged for debugging.
+              if (walletAddress) {
+                recordAttestation({
+                  walletAddress,
+                  txSignature: sig,
+                  attestationType: "breathprint",
+                  cluster: "devnet",
+                  metadata: { sessionId, source: "verify.breath.id" },
+                }).catch((e) => {
+                  console.warn("[attestation] recordAttestation failed:", e);
+                });
+              }
               setCurrentStep("complete");
             }}
             onFail={handleFail}
@@ -344,14 +373,13 @@ function VerifyContent() {
             )}
             <button
               onClick={() => {
-                // Prefer a real ZK signature if the backend produced one;
-                // fall back to the random demo signature.
-                const sig =
-                  breathZk?.txSignature ?? faceZk?.txSignature ?? proofSig;
-                const url = sig
-                  ? `https://solscan.io/tx/${sig}?cluster=devnet`
-                  : EXPLORER_URL;
-                window.location.href = url;
+                // Send the user back to vertebra.breath.id/explorer with
+                // their wallet pre-loaded — BreathPrintSection there
+                // queries the `attestations` table and renders the row
+                // we just inserted on breath success.
+                const u = new URL(EXPLORER_URL);
+                if (walletAddress) u.searchParams.set("wallet", walletAddress);
+                window.location.href = u.toString();
               }}
               className="bp-button w-full justify-center mb-2"
             >

@@ -8,11 +8,14 @@ import { createClient } from "@supabase/supabase-js";
 export const DASHBOARD_URL = "https://vertebra.breath.id/dashboard";
 export const EXPLORER_URL = "https://vertebra.breath.id/explorer";
 
-const SUPABASE_URL = "https://rdjuvpodvbvyylsbelbp.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkanV2cG9kdmJ2eXlsc2JlbGJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2ODMzMDgsImV4cCI6MjA5MTI1OTMwOH0.DNSQ6-FOaN7iXOKNP20ns1w44NHlZkjupRG9dYgRJvQ";
+// Live Supabase project (ziqfahccdfsmibazrgou). The previous
+// rdjuvpodvbvyylsbelbp project was deleted earlier in the session;
+// validateToken was silently failing because the project no longer existed.
+export const SUPABASE_URL = "https://ziqfahccdfsmibazrgou.supabase.co";
+export const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppcWZhaGNjZGZzbWliYXpyZ291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1Mjg2NTksImV4cCI6MjA5NDEwNDY1OX0.cYbrLNiS-YNabJBvUvOGcs-NRuWv-HP1soS8XphTU9c";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Validate a Supabase access token passed from the dashboard.
