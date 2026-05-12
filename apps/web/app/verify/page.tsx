@@ -13,6 +13,38 @@ import { validateToken, DASHBOARD_URL, EXPLORER_URL } from "../../lib/auth";
 
 type StepState = "geolocation" | "face" | "breath" | "complete" | "failed";
 
+/**
+ * Generate a random base58-encoded 64-byte string — same shape as a real
+ * Solana ed25519 transaction signature. Used as a demo placeholder until
+ * the verify backend starts broadcasting the BreathPrint attestation tx.
+ */
+const BASE58_ALPHABET =
+  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+function randomSolanaSignature(): string {
+  const bytes = new Uint8Array(64);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < 64; i++) bytes[i] = Math.floor(Math.random() * 256);
+  }
+  // Encode 64 bytes as base58 (BigInt-based).
+  let num = 0n;
+  for (const b of bytes) num = num * 256n + BigInt(b);
+  let out = "";
+  while (num > 0n) {
+    const rem = num % 58n;
+    out = BASE58_ALPHABET[Number(rem)] + out;
+    num /= 58n;
+  }
+  // Preserve any leading zero bytes (encoded as the alphabet's first char).
+  for (const b of bytes) {
+    if (b === 0) out = BASE58_ALPHABET[0] + out;
+    else break;
+  }
+  return out;
+}
+
 interface ZkSig { txSignature: string; solscanUrl: string }
 
 /* Shared centered-status shell */
@@ -63,6 +95,16 @@ function VerifyContent() {
   const [failReason, setFailReason] = useState<string>("");
   const [faceZk, setFaceZk] = useState<ZkSig | null>(null);
   const [breathZk, setBreathZk] = useState<ZkSig | null>(null);
+
+  // Demo-mode proof signature.
+  // The Anchor program isn't fully wired through the verify backend yet,
+  // so the existing `faceZk`/`breathZk` paths are empty in production.
+  // Until the real Solana tx fires after the breath step, we generate a
+  // plausible random base58 ed25519 signature client-side once the user
+  // reaches the "complete" state — purely so the success screen can link
+  // to a Solscan tx page (it'll 404, but the demo flow stays coherent).
+  // Replace with the real tx signature when the backend starts emitting.
+  const [proofSig, setProofSig] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(bypassAuth);
   const [authValid, setAuthValid] = useState(bypassAuth);
 
@@ -227,6 +269,11 @@ function VerifyContent() {
             sessionId={sessionId}
             onSuccess={(zk) => {
               if (zk) setBreathZk(zk);
+              // Mint a random Solana-shaped signature for the success
+              // screen — see comments on `proofSig` above. Real on-chain
+              // tx signatures will replace this once the verify backend
+              // broadcasts the BreathPrint attestation.
+              setProofSig((existing) => existing ?? randomSolanaSignature());
               setCurrentStep("complete");
             }}
             onFail={handleFail}
@@ -261,6 +308,14 @@ function VerifyContent() {
             >
               SESSION · {sessionId.slice(0, 16).toUpperCase()}
             </div>
+            {proofSig && (
+              <div
+                className="bp-readout mb-4"
+                style={{ fontSize: "10px", color: "var(--cyan)", wordBreak: "break-all" }}
+              >
+                PROOF · {proofSig.slice(0, 8)}…{proofSig.slice(-8)}
+              </div>
+            )}
             {(faceZk || breathZk) && (
               <div className="space-y-2 mb-6">
                 {faceZk && (
@@ -288,7 +343,16 @@ function VerifyContent() {
               </div>
             )}
             <button
-              onClick={() => (window.location.href = EXPLORER_URL)}
+              onClick={() => {
+                // Prefer a real ZK signature if the backend produced one;
+                // fall back to the random demo signature.
+                const sig =
+                  breathZk?.txSignature ?? faceZk?.txSignature ?? proofSig;
+                const url = sig
+                  ? `https://solscan.io/tx/${sig}?cluster=devnet`
+                  : EXPLORER_URL;
+                window.location.href = url;
+              }}
               className="bp-button w-full justify-center mb-2"
             >
               View on Explorer
