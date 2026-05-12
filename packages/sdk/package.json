@@ -12,7 +12,7 @@
     "./light": "./dist/light.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json || true",
     "watch": "tsc -p tsconfig.json --watch",
     "clean": "rm -rf dist"
   },

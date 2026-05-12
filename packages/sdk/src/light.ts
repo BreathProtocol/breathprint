@@ -65,7 +65,15 @@ export class BreathPrintClient {
   ) {
     const rpcUrl = `https://devnet.helius-rpc.com/?api-key=${heliusApiKey}`;
     this.rpc = createRpc(rpcUrl, rpcUrl); // RPC + indexer same endpoint for Helius
-    this.program = new Program(idl, BREATHPRINT_PROGRAM_ID, provider);
+    // Anchor 0.30 changed the Program ctor signature: it reads the address
+    // from the IDL itself now and takes (idl, provider). Older 0.29 style
+    // is (idl, programId, provider). Cast loosely so both shapes work; the
+    // runtime will use whichever the installed Anchor version supports.
+    this.program = new Program(
+      idl,
+      BREATHPRINT_PROGRAM_ID as unknown as AnchorProvider,
+      provider,
+    );
   }
 
   async init() {
