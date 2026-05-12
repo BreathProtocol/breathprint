@@ -9,7 +9,7 @@ import ProgressBar from "./components/ProgressBar";
 import InsecureContextBanner from "./components/InsecureContextBanner";
 import SolanaConnectButton from "../../components/SolanaConnectButton";
 import { apiPost } from "../../lib/api";
-import { validateToken } from "../../lib/auth";
+import { validateToken, DASHBOARD_URL, EXPLORER_URL } from "../../lib/auth";
 
 type StepState = "geolocation" | "face" | "breath" | "complete" | "failed";
 
@@ -288,19 +288,13 @@ function VerifyContent() {
               </div>
             )}
             <button
-              onClick={() =>
-                (window.location.href =
-                  "https://breath-protocol.vercel.app/explorer")
-              }
+              onClick={() => (window.location.href = EXPLORER_URL)}
               className="bp-button w-full justify-center mb-2"
             >
               View on Explorer
             </button>
             <button
-              onClick={() =>
-                (window.location.href =
-                  "https://breath-protocol.vercel.app/dashboard")
-              }
+              onClick={() => (window.location.href = DASHBOARD_URL)}
               className="bp-button w-full justify-center"
             >
               Return to Dashboard

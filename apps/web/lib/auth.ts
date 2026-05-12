@@ -1,5 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
+/**
+ * Production destinations for the cross-app handoff.
+ * verify.breath.id always sends the user back to the Vertebra Atlas —
+ * never the bare *.vercel.app preview domains.
+ */
+export const DASHBOARD_URL = "https://vertebra.breath.id/dashboard";
+export const EXPLORER_URL = "https://vertebra.breath.id/explorer";
+
 const SUPABASE_URL = "https://rdjuvpodvbvyylsbelbp.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkanV2cG9kdmJ2eXlsc2JlbGJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2ODMzMDgsImV4cCI6MjA5MTI1OTMwOH0.DNSQ6-FOaN7iXOKNP20ns1w44NHlZkjupRG9dYgRJvQ";
