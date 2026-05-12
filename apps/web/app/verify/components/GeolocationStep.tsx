@@ -147,7 +147,7 @@ export default function GeolocationStep({
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(to right, transparent calc(50% - 0.5px), rgba(122, 224, 212, 0.25) 50%, transparent calc(50% + 0.5px)), linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(122, 224, 212, 0.25) 50%, transparent calc(50% + 0.5px))",
+              "linear-gradient(to right, transparent calc(50% - 0.5px), rgba(201, 123, 94, 0.25) 50%, transparent calc(50% + 0.5px)), linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(201, 123, 94, 0.25) 50%, transparent calc(50% + 0.5px))",
           }}
         />
 

@@ -9,3 +9,6 @@ packages/*/dist/
 .turbo
 .vercel
 uploads/
+
+# Claude Code local config
+.claude/

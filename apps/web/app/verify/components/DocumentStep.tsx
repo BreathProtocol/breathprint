@@ -325,7 +325,7 @@ export default function DocumentStep({
                       width: "min(100%, 520px)",
                       aspectRatio: "85 / 54",
                       outline: "1px solid var(--teal)",
-                      boxShadow: "0 0 0 9999px rgba(7, 8, 12, 0.65)",
+                      boxShadow: "0 0 0 9999px rgba(255, 255, 255, 0.65)",
                     }}
                   >
                     <span className="absolute top-0 left-0 w-6 h-6" style={{ borderTop: "2px solid var(--teal)", borderLeft: "2px solid var(--teal)" }} />

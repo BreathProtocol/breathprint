@@ -14,6 +14,13 @@ function routeMeta(pathname: string | null): {
       hint: "Hold · Still",
     };
   }
+  if (pathname === "/team") {
+    return {
+      label: "Team · Atelier",
+      system: "Sys // Atelier · ONLINE",
+      hint: "Crew · 08",
+    };
+  }
   return {
     label: "Gateway · Redirect",
     system: "Sys // Gateway · ONLINE",
@@ -53,11 +60,13 @@ export default function HUD() {
         </div>
       </div>
 
-      {/* Bottom-left: origin */}
-      <div className="absolute bottom-7 left-8 bp-label leading-relaxed">
-        <div>Lat 41.402 / Lon -2.174</div>
-        <div className="mt-1.5">Origin · Barcelona</div>
-      </div>
+      {/* Bottom-left: origin (hidden on /team — reserved for "Return to Main Menu") */}
+      {pathname !== "/team" && (
+        <div className="absolute bottom-7 left-8 bp-label leading-relaxed">
+          <div>Lat 41.402 / Lon -2.174</div>
+          <div className="mt-1.5">Origin · Barcelona</div>
+        </div>
+      )}
 
       {/* Bottom-right: contextual input hint */}
       <div className="absolute bottom-7 right-8 text-right bp-label leading-relaxed">

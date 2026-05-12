@@ -187,7 +187,7 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (mouthLandmarks.length === 4) {
-      ctx.fillStyle = "#7AE0D4";
+      ctx.fillStyle = "#C97B5E";
       mouthLandmarks.forEach((point: { x: number; y: number }) => {
         ctx.beginPath();
         ctx.arc(point.x * canvas.width, point.y * canvas.height, 2, 0, 2 * Math.PI);
@@ -379,7 +379,7 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
                   ? `scale(${1.06 - currentStats.phaseProgress * 0.06})`
                   : "scale(1)",
               borderColor: phaseColor,
-              boxShadow: `0 0 28px ${phaseColor}40, inset 0 0 32px rgba(7, 8, 12, 0.6)`,
+              boxShadow: `0 0 28px ${phaseColor}40, inset 0 0 32px rgba(255, 255, 255, 0.6)`,
             }}
           >
             <video
@@ -408,7 +408,7 @@ export default function BreathStep({ sessionId, onSuccess, onFail }: BreathStepP
                 cy="50"
                 r="49"
                 fill="none"
-                stroke="rgba(232, 230, 222, 0.08)"
+                stroke="rgba(31, 26, 20, 0.08)"
                 strokeWidth="1.5"
               />
               <circle

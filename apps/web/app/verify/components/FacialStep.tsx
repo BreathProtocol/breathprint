@@ -94,7 +94,7 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (landmarks && landmarks.length > 0) {
-      ctx.fillStyle = "#7AE0D4"; // teal — brand accent
+      ctx.fillStyle = "#C97B5E"; // teal — brand accent
       (landmarks as { x: number; y: number }[]).forEach((point) => {
         ctx.beginPath();
         ctx.arc(point.x * canvas.width, point.y * canvas.height, 1, 0, 2 * Math.PI);
@@ -361,14 +361,14 @@ export default function FacialStep({ sessionId, onSuccess, onFail }: FacialStepP
             {countdown !== null && countdown > 0 && (
               <div
                 className="absolute inset-0 z-[4] flex items-center justify-center"
-                style={{ background: "rgba(7, 8, 12, 0.45)" }}
+                style={{ background: "rgba(255, 255, 255, 0.45)" }}
               >
                 <span
                   className="bp-display"
                   style={{
                     fontSize: "clamp(96px, 16vw, 180px)",
                     color: "var(--teal)",
-                    textShadow: "0 0 40px rgba(122, 224, 212, 0.5)",
+                    textShadow: "0 0 40px rgba(201, 123, 94, 0.5)",
                   }}
                 >
                   {countdown}

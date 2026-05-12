@@ -1,10 +1,9 @@
 /**
- * The "nebula" — atmospheric dark background shared across every route.
- * Fixed, z-0, pointer-events-none. Rendered once from layout.tsx.
- * Composition (bottom → top): obsidian base, soft violet + teal glows,
- * grid dust, softened vignette, SVG grain, scanlines.
+ * Ambient cream background — shared across every non-landing route.
+ * The 3D helix only lives on /landing.html. App pages get a calmer
+ * vocabulary: cream paper, warm violet/teal glows, faint grain + scanlines.
  *
- * Mirrors /Users/marcionaves/dev/breath-protocol-main for visual parity.
+ * Fixed, z-0, pointer-events-none. Rendered once from layout.tsx.
  */
 export default function AmbientBackground() {
   return (
@@ -13,7 +12,7 @@ export default function AmbientBackground() {
       className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
       style={{ background: "var(--obsidian)" }}
     >
-      {/* Nebula glows — brighter violet + teal against obsidian */}
+      {/* Warm glow layer — soft tan + terracotta nebulas on cream */}
       <div
         className="absolute inset-0"
         style={{
@@ -25,7 +24,7 @@ export default function AmbientBackground() {
         }}
       />
 
-      {/* Grid dust */}
+      {/* Paper grid — 1px lines every 80px */}
       <div
         className="absolute inset-0"
         style={{
@@ -37,7 +36,7 @@ export default function AmbientBackground() {
         }}
       />
 
-      {/* Vignette */}
+      {/* Vignette — soft dark fall-off at the edges */}
       <div
         className="absolute inset-0"
         style={{
@@ -47,12 +46,12 @@ export default function AmbientBackground() {
         }}
       />
 
-      {/* Grain */}
+      {/* Grain — inline SVG fractalNoise, multiply for warm texture */}
       <div
         className="absolute inset-0"
         style={{
-          opacity: 0.06,
-          mixBlendMode: "overlay",
+          opacity: 0.08,
+          mixBlendMode: "multiply",
           backgroundImage:
             "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='5'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")",
           backgroundRepeat: "repeat",

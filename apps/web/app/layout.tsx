@@ -10,7 +10,7 @@ import Web3AuthSolanaProvider from "../components/Web3AuthSolanaProvider";
 
 export const metadata: Metadata = {
   title: "BreathPrint — Verification",
-  description: "Next Generation Biometric Identity Verification",
+  description: "Where humanity and technology becomes one.",
 };
 
 export default function RootLayout({
