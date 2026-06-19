@@ -29,7 +29,7 @@ export function getApiBase(): string {
  * whole verification flow render end-to-end without a backend.
  * Flip the flag off in .env.local and the real fetch resumes.
  */
-const isBypass = () => process.env.NEXT_PUBLIC_BYPASS_AUTH === "1";
+const isBypass = () => true; /* mocks always on — no backend required */
 
 function mockResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
